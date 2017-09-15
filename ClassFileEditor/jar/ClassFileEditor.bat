@@ -1,0 +1,2 @@
+java -jar ClassFileEditor.jar -s "D:\workspace\TranslatorX\AndroidStudio\original\2.3.3\lib\idea\com\intellij\openapi\fileEditor\impl\EditorEmptyTextPainter.class" -d "D:\workspace\TranslatorX\AndroidStudio\target\2.3.3\lib\idea\com\intellij\openapi\fileEditor\impl\EditorEmptyTextPainter.class" -t "D:\workspace\TranslatorX\AndroidStudio\original\2.3.3\lib\idea_translation.txt"
+pause
