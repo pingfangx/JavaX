@@ -27,13 +27,13 @@ public class ClassFileEditor {
 	@Option(name = "-h", aliases = { "-help", "--help" }, help = true, usage = "显示帮助")
 	private boolean help;
 
-	@Option(name = "-s", aliases = "source", required = true, usage = "要处理的class文件")
+	@Option(name = "-s", aliases = "-source", required = true, usage = "要处理的class文件")
 	private String source;
 
-	@Option(name = "-d", aliases = "destination", required = true, usage = "处理后的保存的class文件")
+	@Option(name = "-d", aliases = "-destination", required = true, usage = "处理后的保存的class文件")
 	private String destination;
 
-	@Option(name = "-t", aliases = "translation", required = true, usage = "翻译文件，每行一个翻译，用=分隔中英文")
+	@Option(name = "-t", aliases = "-translation", required = true, usage = "翻译文件，每行一个翻译，用=分隔中英文")
 	private String translation;
 
 	public static void main(String[] args) throws IOException {
