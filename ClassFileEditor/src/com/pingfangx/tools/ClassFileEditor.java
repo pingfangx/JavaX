@@ -30,10 +30,13 @@ public class ClassFileEditor {
 	@Option(name = "-s", aliases = "-source", required = true, usage = "要处理的class文件")
 	private String source;
 
-	@Option(name = "-d", aliases = "-destination", required = true, usage = "处理后的保存的class文件")
+	@Option(name = "-a", aliases = "-action", usage = "操作 s(show)|t(translation)")
+	private String action;
+
+	@Option(name = "-d", aliases = "-destination", usage = "处理后的保存的class文件")
 	private String destination;
 
-	@Option(name = "-t", aliases = "-translation", required = true, usage = "翻译文件，每行一个翻译，用=分隔中英文")
+	@Option(name = "-t", aliases = "-translation", usage = "翻译文件，每行一个翻译，用=分隔中英文")
 	private String translation;
 
 	public static void main(String[] args) throws IOException {
@@ -49,10 +52,26 @@ public class ClassFileEditor {
 				parser.printUsage(System.err);
 				return;
 			}
-			try {
-				updateClassFile(source, destination, readTranslation(translation), false);
-			} catch (Exception e) {
-				e.printStackTrace();
+			if (action == null) {
+				action = "t";
+			} else {
+				action = action.toLowerCase();
+			}
+			if (action.equals("s")) {
+				// 显示
+				readClassFile(source, destination);
+			} else if (action.equals("t")) {
+				// 翻译
+				if (destination == null) {
+					throw new IllegalArgumentException("require -d");
+				} else if (translation == null) {
+					throw new IllegalArgumentException("require -t");
+				}
+				try {
+					updateClassFile(source, destination, readTranslation(translation), false);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
@@ -156,6 +175,34 @@ public class ClassFileEditor {
 			}
 			ClassFileWriter.writeToFile(resultFile, classFile);
 			System.out.println("已输出文件" + resultFilePath);
+		}
+	}
+
+	/**
+	 * 读取class文件
+	 * 
+	 * @param filePath
+	 * @param resultFilePath
+	 */
+	private static void readClassFile(String filePath, String resultFilePath) throws Exception {
+		FileInputStream fileInputStream = new FileInputStream(filePath);
+		DataInput dataInput = new DataInputStream(fileInputStream);
+		ClassFile classFile = new ClassFile();
+		classFile.read(dataInput);
+		fileInputStream.close();
+
+		CPInfo[] infos = classFile.getConstantPool();
+
+		int count = infos.length;
+		for (int i = 0; i < count; i++) {
+			CPInfo info = infos[i];
+			if (info != null) {
+				if (info instanceof ConstantUtf8Info) {
+					String name = info.getVerbose();
+					String lineInfo = String.format("%d,%s", i, name);
+					System.out.println(lineInfo);
+				}
+			}
 		}
 	}
 }
