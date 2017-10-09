@@ -10,12 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -85,7 +81,7 @@ public class ClassFileEditor {
                 } else if (translation == null) {
                     throw new IllegalArgumentException("require -t");
                 }
-                updateClassFile(source, destination, readTranslation(translation), false);
+                translateClassFile(source, destination, translation);
                 break;
             case "unzip":
                 unzipClassFile(source, destination, translation);
@@ -102,49 +98,54 @@ public class ClassFileEditor {
 
     }
 
+    private static void translateClassFile(String source, String destination, String translation) throws Exception {
+        List<File> fileList = listFile(source);
+        List<Translation> allTranslation = getTranslations(translation);
+        int size = fileList.size();
+        for (int i = 0; i < size; i++) {
+            File file = fileList.get(i);
+            List<Translation> translationForFile = getTranslationForFile(file.getName().split("\\.")[0],
+                    allTranslation);
+            if (translationForFile.isEmpty()) {
+                System.out.println("汉有对应的翻译 " + file.getName());
+                continue;
+            } else {
+                // 如果是文件，也会直接替换文件名
+                String resultFile = file.getAbsolutePath().replace(source, destination);
+                System.out.println(String.format("翻译 %d/%d :%s", i + 1, size, file.getName()));
+                updateClassFile(file.getAbsolutePath(), resultFile, translationForFile);
+            }
+        }
+    }
+
     /**
-     * 读取翻译文件，每行一个翻译，按=分隔
+     * 获取某一文件对应的翻译，为了防止错误的翻译，对其进行区分
+     * 如果要不区分类，可添加标记，如用 null 表示
      * 
-     * @param filePath 文件
+     * @param fileName
+     * @param allTranslation
      * @return
      */
-    private static Map<String, String> readTranslation(String filePath) {
-        Map<String, String> result = new HashMap<>();
-        FileInputStream inputStream = null;
-        BufferedReader bufferedReader = null;
-        try {
-            inputStream = new FileInputStream(filePath);
-            bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"));
-
-            String line = null;
-            while ((line = bufferedReader.readLine()) != null) {
-                if (line.contains("=")) {
-                    String[] enAndCn = line.split("=");
-                    if (enAndCn.length > 1) {
-                        result.put(enAndCn[0], enAndCn[1]);
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (bufferedReader != null) {
-                try {
-                    bufferedReader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+    private static List<Translation> getTranslationForFile(String fileName, List<Translation> allTranslation) {
+        List<Translation> result = new ArrayList<>();
+        for (Translation translation : allTranslation) {
+            if (fileName.equals(translation.className)) {
+                result.add(translation);
             }
         }
         return result;
+    }
+
+    /**
+     * 返回 key 对应的翻译
+     */
+    private static String getTranslationForKey(String key, List<Translation> allTranslation) {
+        for (Translation translation : allTranslation) {
+            if (key.equals(translation.en)) {
+                return translation.cn;
+            }
+        }
+        return null;
     }
 
     /**
@@ -156,8 +157,8 @@ public class ClassFileEditor {
      * @param printLine 是否打印行，用来显示所有信息
      * @throws Exception
      */
-    private static void updateClassFile(String filePath, String resultFilePath, Map<String, String> replaceMap,
-            boolean printLine) throws Exception {
+    private static void updateClassFile(String filePath, String resultFilePath, List<Translation> translations)
+            throws Exception {
         FileInputStream fileInputStream = new FileInputStream(filePath);
         DataInput dataInput = new DataInputStream(fileInputStream);
         ClassFile classFile = new ClassFile();
@@ -171,19 +172,17 @@ public class ClassFileEditor {
             CPInfo info = infos[i];
             if (info != null) {
                 String name = info.getVerbose();
-                String lineInfo = String.format("%d,%s=%s", i, name, info.getTagVerbose());
-                if (printLine) {
-                    System.out.println(lineInfo);
-                }
-                if (replaceMap.containsKey(name)) {
-                    // 这里会有2个，ConstantUtf8Info和CONSTANT_String_info
-                    if (info instanceof ConstantUtf8Info) {
-                        String value = replaceMap.get(name);
-                        System.out.println(lineInfo);
-                        System.out.println(String.format("包含%s,替换为%s\n", name, value));
-                        ((ConstantUtf8Info) info).setString(value);
-                        infos[i] = info;
+                // 这里会有2个，ConstantUtf8Info和CONSTANT_String_info
+                if (info instanceof ConstantUtf8Info) {
+                    String value = getTranslationForKey(name, translations);
+                    if (value == null) {
+                        continue;
                     }
+                    String lineInfo = String.format("%d,%s=%s", i, name, info.getTagVerbose());
+                    System.out.println(lineInfo);
+                    System.out.println(String.format("包含【%s】,替换为【%s】\n", name, value));
+                    ((ConstantUtf8Info) info).setString(value);
+                    infos[i] = info;
                 }
             }
         }
@@ -195,7 +194,7 @@ public class ClassFileEditor {
                 resultFile.getParentFile().mkdirs();
             }
             ClassFileWriter.writeToFile(resultFile, classFile);
-            System.out.println("已输出文件" + resultFilePath);
+            System.out.println("已输出文件" + resultFilePath + "\n");
         }
     }
 
@@ -323,6 +322,41 @@ public class ClassFileEditor {
             }
         }
         return result;
+    }
+
+    /**
+     * 列出文件
+     */
+    private static List<File> listFile(String dir) {
+        if (dir == null || dir.isEmpty()) {
+            return new ArrayList<>();
+        } else {
+            File file = new File(dir);
+            if (file.exists()) {
+                return listFile(file);
+            } else {
+                return new ArrayList<>();
+            }
+        }
+    }
+
+    /**
+     * 列出文件
+     */
+    private static List<File> listFile(File dir) {
+        List<File> fileList = new ArrayList<>();
+        if (dir.isDirectory()) {
+            for (File file : dir.listFiles()) {
+                if (file.isDirectory()) {
+                    fileList.addAll(listFile(file));
+                } else {
+                    fileList.add(file);
+                }
+            }
+        } else {
+            fileList.add(dir);
+        }
+        return fileList;
     }
 
     /**
