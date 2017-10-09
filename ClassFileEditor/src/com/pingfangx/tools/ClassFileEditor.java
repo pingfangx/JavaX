@@ -5,10 +5,20 @@ import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 import org.gjt.jclasslib.io.ClassFileWriter;
 import org.gjt.jclasslib.structures.CPInfo;
@@ -30,7 +40,7 @@ public class ClassFileEditor {
     @Option(name = "-s", aliases = "-source", required = true, usage = "要处理的class文件")
     private String source;
 
-    @Option(name = "-a", aliases = "-action", usage = "操作 s(show)|t(translation)")
+    @Option(name = "-a", aliases = "-action", usage = "操作 s(show)|t(translate)")
     private String action;
 
     @Option(name = "-d", aliases = "-destination", usage = "处理后的保存的class文件")
@@ -47,33 +57,44 @@ public class ClassFileEditor {
         CmdLineParser parser = new CmdLineParser(this);
 
         try {
+            // 解析
             parser.parseArgument(args);
+            // 显示帮助
             if (help) {
                 parser.printUsage(System.err);
                 return;
             }
+            // 解析操作
             if (action == null) {
                 action = "t";
             } else {
                 action = action.toLowerCase();
             }
-            if (action.equals("s")) {
+            // 执行操作
+            switch (action) {
+            case "s":
+            case "show":
                 // 显示
                 readClassFile(source, destination);
-            } else if (action.equals("t")) {
+                break;
+            case "t":
+            case "translate":
                 // 翻译
                 if (destination == null) {
                     throw new IllegalArgumentException("require -d");
                 } else if (translation == null) {
                     throw new IllegalArgumentException("require -t");
                 }
-                try {
-                    updateClassFile(source, destination, readTranslation(translation), false);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                updateClassFile(source, destination, readTranslation(translation), false);
+                break;
+            case "unzip":
+                unzipClassFile(source, destination, translation);
+                break;
+            default:
+                throw new IllegalArgumentException("unknown action:" + action);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             System.err.println(e.getMessage());
             parser.printUsage(System.err);
             return;
@@ -205,4 +226,158 @@ public class ClassFileEditor {
             }
         }
     }
+
+    /**
+     * 根据翻译文件中指明的文件，从 jar 中解压出相应的 class 文件
+     * 
+     * @param source jar 包文件
+     * @param destination 解压目录，可以为空
+     * @param translationFile 翻译文件
+     */
+    private static void unzipClassFile(String source, String destination, String translationFile) throws Exception {
+        List<Translation> translations = getTranslations(translationFile);
+        List<String> fileNameList = new ArrayList<>();
+        for (Translation translation : translations) {
+            String fileName = translation.packageName.replace(".", "/") + "/" + translation.className + ".class";
+            if (!fileNameList.contains(fileName)) {
+                fileNameList.add(fileName);
+            }
+        }
+
+        if (destination == null) {
+            File file = new File(source);
+            destination = file.getParent() + File.separator + file.getName().split("\\.")[0] + File.separator;
+        }
+
+        unzipFiles(new File(source), destination, fileNameList);
+    }
+
+    /**
+     * 在 jarFile 中 ，如果有 translationFileList 中的文件，则将其解压至 destinationPath
+     * 从压缩包中解压指定的文件到指定的目录，如果不存在则不解压
+     */
+    public static void unzipFiles(File sourceFile, String destinationDir, List<String> fileList)
+            throws ZipException, IOException {
+        ZipFile zipFile = new ZipFile(sourceFile);
+        for (String file : fileList) {
+            ZipEntry entry = zipFile.getEntry(file);
+            if (entry != null) {
+                File destFile = new File(destinationDir + file);
+                File parent = destFile.getParentFile();
+                if (!parent.exists()) {
+                    parent.mkdirs();
+                }
+                InputStream is = zipFile.getInputStream(entry);
+                FileOutputStream fos = new FileOutputStream(destFile);
+                int count;
+                byte[] buf = new byte[1024];
+                while ((count = is.read(buf)) != -1) {
+                    fos.write(buf, 0, count);
+                }
+                is.close();
+                fos.close();
+                System.out.println("解压缩" + file);
+            } else {
+                System.out.println("找不到" + file);
+            }
+        }
+        zipFile.close();
+    }
+
+    /**
+     * 读取翻译
+     */
+    private static List<Translation> getTranslations(String filePath) {
+        List<Translation> result = new ArrayList<>();
+        List<String> lines = readLines(filePath);
+        // 空行没用，删除
+        Iterator<String> iterator = lines.iterator();
+        while (iterator.hasNext()) {
+            String next = iterator.next();
+            if (next == null || next.isEmpty()) {
+                iterator.remove();
+            }
+        }
+        int size = lines.size();
+        String packageName = "";
+        String className = "";
+        for (int i = 0; i < size; i++) {
+            String line = lines.get(i);
+            if (line.startsWith(";;")) {
+                packageName = line.substring(2);
+                continue;
+            } else if (line.startsWith(";")) {
+                className = line.substring(1);
+                continue;
+            } else {
+                if (line.contains("=")) {
+                    String[] enAndCn = line.split("=");
+                    if (enAndCn.length > 1) {
+                        result.add(new Translation(packageName, className, enAndCn[0], enAndCn[1]));
+                    } else {
+                        result.add(new Translation(packageName, className, enAndCn[0], ""));
+                    }
+                } else {
+                    System.out.println("第" + i + "行格式不正确" + line);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 读取所有行
+     */
+    private static List<String> readLines(String filePath) {
+        List<String> lines = new ArrayList<>();
+        FileInputStream inputStream = null;
+        BufferedReader bufferedReader = null;
+        try {
+            inputStream = new FileInputStream(filePath);
+            bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"));
+            String line = null;
+            while ((line = bufferedReader.readLine()) != null) {
+                lines.add(line);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (bufferedReader != null) {
+                try {
+                    bufferedReader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return lines;
+    }
+
+    /**
+     * 翻译
+     *
+     */
+    private static class Translation {
+        private String packageName;
+        private String className;
+        private String en;
+        private String cn;
+
+        public Translation(String packageName, String className, String en, String cn) {
+            this.packageName = packageName;
+            this.className = className;
+            this.en = en;
+            this.cn = cn;
+        }
+
+    }
+
 }
