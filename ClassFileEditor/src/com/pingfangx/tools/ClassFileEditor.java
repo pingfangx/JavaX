@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -99,7 +100,13 @@ public class ClassFileEditor {
     }
 
     private static void translateClassFile(String source, String destination, String translation) throws Exception {
-        List<File> fileList = listFile(source);
+        List<File> fileList = listFile(source, new FileFilter() {
+
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.isDirectory() || pathname.getName().endsWith(".class");
+            }
+        });
         List<Translation> allTranslation = getTranslations(translation);
         int size = fileList.size();
         for (int i = 0; i < size; i++) {
@@ -326,14 +333,16 @@ public class ClassFileEditor {
 
     /**
      * 列出文件
+     * 
+     * @param fileFilter
      */
-    private static List<File> listFile(String dir) {
+    private static List<File> listFile(String dir, FileFilter fileFilter) {
         if (dir == null || dir.isEmpty()) {
             return new ArrayList<>();
         } else {
             File file = new File(dir);
             if (file.exists()) {
-                return listFile(file);
+                return listFile(file, fileFilter);
             } else {
                 return new ArrayList<>();
             }
@@ -343,12 +352,12 @@ public class ClassFileEditor {
     /**
      * 列出文件
      */
-    private static List<File> listFile(File dir) {
+    private static List<File> listFile(File dir, FileFilter fileFilter) {
         List<File> fileList = new ArrayList<>();
         if (dir.isDirectory()) {
-            for (File file : dir.listFiles()) {
+            for (File file : dir.listFiles(fileFilter)) {
                 if (file.isDirectory()) {
-                    fileList.addAll(listFile(file));
+                    fileList.addAll(listFile(file, fileFilter));
                 } else {
                     fileList.add(file);
                 }
