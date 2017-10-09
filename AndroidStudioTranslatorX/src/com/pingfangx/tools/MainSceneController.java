@@ -55,6 +55,8 @@ public class MainSceneController implements Initializable {
     private IBaseConfig mConfig;
 
     private ILogger mLogger;
+    
+    private TranslationFileTools mTranslationFileTools;
 
     /**
      * 备份目录选项
@@ -77,6 +79,7 @@ public class MainSceneController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         mLogger = new TextAreaLogger(textAreaOutput);
         mConfig = new SoftwareConfig();
+        mTranslationFileTools=TranslationFileTools.getInstance();
         // 设置选项
         choiceBoxBackupPath.setItems(FXCollections.observableArrayList(mBackupPathChoiceList));
         choiceBoxBackupPath.getSelectionModel().selectedIndexProperty().addListener((ov, oldv, newv) -> {
@@ -148,7 +151,7 @@ public class MainSceneController implements Initializable {
             String asHomePath = bufferedReader.readLine();
             File asHomeDir = new File(asHomePath);
             if (asHomeDir.exists()) {
-                if (TranslationFileTools.validateAsPath(asHomePath) == null) {
+                if (mTranslationFileTools.validateAsPath(asHomePath) == null) {
                     setAndSaveAsPath(asHomePath);
                     mLogger.i("自动扫描出 AndroidStudio 安装路径" + asHomePath);
                 }
@@ -230,7 +233,7 @@ public class MainSceneController implements Initializable {
     }
 
     private void setAndSaveAsPath(String path) {
-        String message = TranslationFileTools.validateAsPath(path);
+        String message = mTranslationFileTools.validateAsPath(path);
         if (message != null) {
             checkAsPathMessage(message);
             return;
@@ -342,7 +345,7 @@ public class MainSceneController implements Initializable {
     // Event Listener on Button[#btnBackup].onMouseClicked
     @FXML
     public void onClickBackup(MouseEvent event) {
-        String message = TranslationFileTools.validateAsPath(textFieldASPath.getText());
+        String message = mTranslationFileTools.validateAsPath(textFieldASPath.getText());
         if (message != null) {
             checkAsPathMessage(message);
             return;
@@ -350,10 +353,10 @@ public class MainSceneController implements Initializable {
         message = null;
         int selectedIndex = choiceBoxBackupType.getSelectionModel().getSelectedIndex();
         if (selectedIndex == BACKUP_TYPE_FILES_IN_JARS) {
-            message = TranslationFileTools.unzipFileList(textFieldASPath.getText(), textFieldBackupPath.getText(),
+            message = mTranslationFileTools.unzipFileList(textFieldASPath.getText(), textFieldBackupPath.getText(),
                     textFieldTranslationPath.getText(), mLogger);
         } else {
-            message = TranslationFileTools.copyJars(textFieldASPath.getText(), textFieldBackupPath.getText(), mLogger);
+            message = mTranslationFileTools.copyJars(textFieldASPath.getText(), textFieldBackupPath.getText(), mLogger);
         }
         checkActionResult(message);
     }
@@ -361,7 +364,7 @@ public class MainSceneController implements Initializable {
     // Event Listener on Button[#btnRestore].onMouseClicked
     @FXML
     public void onClickRestore(MouseEvent event) {
-        String message = TranslationFileTools.validateAsPath(textFieldASPath.getText());
+        String message = mTranslationFileTools.validateAsPath(textFieldASPath.getText());
         if (message != null) {
             checkAsPathMessage(message);
             return;
@@ -370,10 +373,10 @@ public class MainSceneController implements Initializable {
         message = null;
         int selectedIndex = choiceBoxBackupType.getSelectionModel().getSelectedIndex();
         if (selectedIndex == BACKUP_TYPE_FILES_IN_JARS) {
-            message = TranslationFileTools.zipFileList(textFieldBackupPath.getText(), textFieldASPath.getText(),
+            message = mTranslationFileTools.zipFileList(textFieldBackupPath.getText(), textFieldASPath.getText(),
                     textFieldTranslationPath.getText(), mLogger);
         } else {
-            message = TranslationFileTools.copyJars(textFieldBackupPath.getText(), textFieldASPath.getText(), mLogger);
+            message = mTranslationFileTools.copyJars(textFieldBackupPath.getText(), textFieldASPath.getText(), mLogger);
         }
         checkActionResult(message);
     }
@@ -381,7 +384,7 @@ public class MainSceneController implements Initializable {
     // Event Listener on Button[#btnTranslate].onMouseClicked
     @FXML
     public void onClickTranslate(MouseEvent event) {
-        String message = TranslationFileTools.validateAsPath(textFieldASPath.getText());
+        String message = mTranslationFileTools.validateAsPath(textFieldASPath.getText());
         if (message != null) {
             checkAsPathMessage(message);
             return;
@@ -390,10 +393,10 @@ public class MainSceneController implements Initializable {
         message = null;
         int selectedIndex = choiceBoxTranslationType.getSelectionModel().getSelectedIndex();
         if (selectedIndex == BACKUP_TYPE_FILES_IN_JARS) {
-            message = TranslationFileTools.zipFileList(textFieldTranslationPath.getText(), textFieldASPath.getText(),
+            message = mTranslationFileTools.zipFileList(textFieldTranslationPath.getText(), textFieldASPath.getText(),
                     null, mLogger);
         } else {
-            message = TranslationFileTools.copyJars(textFieldTranslationPath.getText(), textFieldASPath.getText(),
+            message = mTranslationFileTools.copyJars(textFieldTranslationPath.getText(), textFieldASPath.getText(),
                     mLogger);
         }
 

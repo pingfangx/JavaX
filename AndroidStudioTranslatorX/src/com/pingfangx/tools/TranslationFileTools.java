@@ -1,11 +1,14 @@
 package com.pingfangx.tools;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -18,9 +21,38 @@ import com.pingfangx.tools.base.ILogger;
 import javafx.concurrent.Task;
 
 public class TranslationFileTools {
-    public static String[] sJarFileArray = { "lib/idea.jar".replace("/", File.separator),
-            "lib/resources_en.jar".replace("/", File.separator),
-            "plugins/android/lib/resources_en.jar".replace("/", File.separator), };
+    private static TranslationFileTools sInstance;
+    private static final String jarListFilePath = "jar_list.txt";
+
+    private List<String> mJarFileList;
+
+    private TranslationFileTools() {
+        mJarFileList = readLines(jarListFilePath);
+        if (mJarFileList == null || mJarFileList.isEmpty()) {
+            mJarFileList = new ArrayList<>();
+            mJarFileList.add("lib/idea.jar");
+            mJarFileList.add("lib/resources.jar");
+            mJarFileList.add("lib/resources_en.jar");
+            mJarFileList.add("plugins/android/lib/android.jar");
+            mJarFileList.add("plugins/android/lib/resources_en.jar");
+        }
+        // 如果以 ; 开头，将其忽略
+        for (Iterator<String> iterator = mJarFileList.iterator(); iterator.hasNext();) {
+            if (iterator.next().startsWith(";")) {
+                iterator.remove();
+            }
+        }
+        for (int i = 0; i < mJarFileList.size(); i++) {
+            mJarFileList.set(i, mJarFileList.get(i).replace("/", File.separator).replace("\\", File.separator));
+        }
+    }
+
+    public static TranslationFileTools getInstance() {
+        if (sInstance == null) {
+            sInstance = new TranslationFileTools();
+        }
+        return sInstance;
+    }
 
     /**
      * 
@@ -28,14 +60,14 @@ public class TranslationFileTools {
      * 
      * @return 如果正确返回null，如果不正确返回错误信息
      */
-    public static String validateAsPath(String path) {
+    public String validateAsPath(String path) {
         if (path == null) {
             return "未指定 AndroidStudio 目录";
         }
         if (!path.endsWith(File.separator)) {
             path += File.separator;
         }
-        for (String jarFile : sJarFileArray) {
+        for (String jarFile : mJarFileList) {
             File file = new File(path + jarFile);
             if (!file.exists()) {
                 return "找不到文件" + jarFile;
@@ -44,7 +76,7 @@ public class TranslationFileTools {
         return null;
     }
 
-    public static String copyJars(String sourceRoot, String destinationRoot, ILogger logger) {
+    public String copyJars(String sourceRoot, String destinationRoot, ILogger logger) {
         Thread t = new Thread(new CopyTask(sourceRoot, destinationRoot, null, logger));
         t.setDaemon(true);
         t.start();
@@ -60,8 +92,7 @@ public class TranslationFileTools {
      * @param translationRoot 翻译文件夹，
      * @return
      */
-    public static String unzipFileList(String sourceRoot, String destinationRoot, String translationRoot,
-            ILogger logger) {
+    public String unzipFileList(String sourceRoot, String destinationRoot, String translationRoot, ILogger logger) {
         Thread t = new Thread(new UnzipFileListTask(sourceRoot, destinationRoot, translationRoot, logger));
         t.setDaemon(true);
         t.start();
@@ -76,8 +107,7 @@ public class TranslationFileTools {
      * @param destinationRoot
      * @return
      */
-    public static String zipFileList(String sourceRoot, String destinationRoot, String translationRoot,
-            ILogger logger) {
+    public String zipFileList(String sourceRoot, String destinationRoot, String translationRoot, ILogger logger) {
         Thread t = new Thread(new ZipFileListTask(sourceRoot, destinationRoot, translationRoot, logger));
         t.setDaemon(true);
         t.start();
@@ -241,6 +271,46 @@ public class TranslationFileTools {
         return fileList;
     }
 
+    /**
+     * 读取所有行
+     */
+    private static List<String> readLines(String filePath) {
+        File file = new File(filePath);
+        if (!file.exists()) {
+            return null;
+        }
+        List<String> lines = new ArrayList<>();
+        FileInputStream inputStream = null;
+        BufferedReader bufferedReader = null;
+        try {
+            inputStream = new FileInputStream(file);
+            bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"));
+            String line = null;
+            while ((line = bufferedReader.readLine()) != null) {
+                lines.add(line);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (bufferedReader != null) {
+                try {
+                    bufferedReader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return lines;
+    }
+
     static abstract class TranslationFileTask extends Task<Void> {
 
         protected String sourceRoot;
@@ -272,14 +342,14 @@ public class TranslationFileTools {
 
     }
 
-    static class CopyTask extends TranslationFileTask {
+    class CopyTask extends TranslationFileTask {
         public CopyTask(String sourceRoot, String destinationRoot, String translationRoot, ILogger logger) {
             super(sourceRoot, destinationRoot, translationRoot, logger);
         }
 
         @Override
         protected Void call() throws Exception {
-            for (String jarFile : sJarFileArray) {
+            for (String jarFile : mJarFileList) {
                 File sourceFile = new File(sourceRoot + jarFile);
                 if (!sourceFile.exists()) {
                     updateMessage("找不到文件" + sourceFile.getAbsolutePath());
@@ -300,7 +370,7 @@ public class TranslationFileTools {
 
     }
 
-    static class ZipFileListTask extends TranslationFileTask {
+    class ZipFileListTask extends TranslationFileTask {
 
         public ZipFileListTask(String sourceRoot, String destinationRoot, String translationRoot, ILogger logger) {
             super(sourceRoot, destinationRoot, translationRoot, logger);
@@ -309,7 +379,7 @@ public class TranslationFileTools {
         @Override
         protected Void call() throws Exception {
 
-            for (String jarFile : sJarFileArray) {
+            for (String jarFile : mJarFileList) {
                 File destFile = new File(destinationRoot + jarFile);
                 if (!destFile.exists()) {
                     updateMessage("找不到文件" + destFile.getAbsolutePath());
@@ -339,7 +409,7 @@ public class TranslationFileTools {
         }
     }
 
-    static class UnzipFileListTask extends TranslationFileTask {
+    class UnzipFileListTask extends TranslationFileTask {
 
         public UnzipFileListTask(String sourceRoot, String destinationRoot, String translationRoot, ILogger logger) {
             super(sourceRoot, destinationRoot, translationRoot, logger);
@@ -347,7 +417,7 @@ public class TranslationFileTools {
 
         @Override
         protected Void call() throws Exception {
-            for (String jarFile : sJarFileArray) {
+            for (String jarFile : mJarFileList) {
                 File sourceFile = new File(sourceRoot + jarFile);
                 if (!sourceFile.exists()) {
                     updateMessage("找不到文件" + sourceFile.getAbsolutePath());
