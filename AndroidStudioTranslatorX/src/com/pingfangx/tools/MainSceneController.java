@@ -55,7 +55,7 @@ public class MainSceneController implements Initializable {
     private IBaseConfig mConfig;
 
     private ILogger mLogger;
-    
+
     private TranslationFileTools mTranslationFileTools;
 
     /**
@@ -79,7 +79,7 @@ public class MainSceneController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         mLogger = new TextAreaLogger(textAreaOutput);
         mConfig = new SoftwareConfig();
-        mTranslationFileTools=TranslationFileTools.getInstance();
+        mTranslationFileTools = TranslationFileTools.getInstance();
         // 设置选项
         choiceBoxBackupPath.setItems(FXCollections.observableArrayList(mBackupPathChoiceList));
         choiceBoxBackupPath.getSelectionModel().selectedIndexProperty().addListener((ov, oldv, newv) -> {
@@ -265,9 +265,11 @@ public class MainSceneController implements Initializable {
     public void onClickChooseASPath(MouseEvent event) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("请选择 AndroidStudio 安装目录");
-        File currentDir = new File(textFieldASPath.getText());
-        if (currentDir.exists()) {
-            directoryChooser.setInitialDirectory(currentDir);
+        if (textFieldASPath.getText() != null) {
+            File currentDir = new File(textFieldASPath.getText());
+            if (currentDir.exists()) {
+                directoryChooser.setInitialDirectory(currentDir);
+            }
         }
         File selectedFile = directoryChooser.showDialog(mStage);
         if (selectedFile != null) {
@@ -282,9 +284,11 @@ public class MainSceneController implements Initializable {
     public void onClickChooseBackupPath(MouseEvent event) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("请选择备份文件存放目录");
-        File currentDir = new File(textFieldBackupPath.getText());
-        if (currentDir.exists()) {
-            directoryChooser.setInitialDirectory(currentDir);
+        if (textFieldBackupPath.getText() != null) {
+            File currentDir = new File(textFieldBackupPath.getText());
+            if (currentDir.exists()) {
+                directoryChooser.setInitialDirectory(currentDir);
+            }
         }
         File selectedFile = directoryChooser.showDialog(mStage);
         if (selectedFile != null) {
@@ -300,9 +304,11 @@ public class MainSceneController implements Initializable {
     public void onClickChooseTranslationPath(MouseEvent event) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("请选择汉化文件存放目录");
-        File currentDir = new File(textFieldTranslationPath.getText());
-        if (currentDir.exists()) {
-            directoryChooser.setInitialDirectory(currentDir);
+        if (textFieldTranslationPath.getText() != null) {
+            File currentDir = new File(textFieldTranslationPath.getText());
+            if (currentDir.exists()) {
+                directoryChooser.setInitialDirectory(currentDir);
+            }
         }
         File selectedFile = directoryChooser.showDialog(mStage);
         if (selectedFile != null) {
