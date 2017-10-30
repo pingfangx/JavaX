@@ -30,7 +30,7 @@ import org.kohsuke.args4j.Option;
  * @author 平方X
  *
  */
-public class ClassFileEditor {
+public class ClassFileEditorX {
     @Option(name = "-h", aliases = { "-help", "--help" }, help = true, usage = "显示帮助")
     private boolean help;
 
@@ -47,7 +47,7 @@ public class ClassFileEditor {
     private String translation;
 
     public static void main(String[] args) throws IOException {
-        new ClassFileEditor().doMain(args);
+        new ClassFileEditorX().doMain(args);
     }
 
     public void doMain(String[] args) throws IOException {

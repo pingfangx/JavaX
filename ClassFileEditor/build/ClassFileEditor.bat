@@ -1,2 +1,0 @@
-java -jar ClassFileEditor.jar -a translate -s "D:\workspace\TranslatorX\AndroidStudio\original\2.3.3" -d "D:\workspace\TranslatorX\AndroidStudio\result\2.3.3" -t "D:\workspace\JavaX\ClassFileEditor\build\2.3.3.txt"
-@pause
