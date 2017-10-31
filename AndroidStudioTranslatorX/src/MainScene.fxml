@@ -7,12 +7,12 @@
 
 <AnchorPane prefHeight="575.0" prefWidth="627.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pingfangx.tools.MainSceneController">
 	<children>
-		<Label layoutX="42.0" layoutY="52.0" text="AndroidStudio 目录" />
-		<TextField fx:id="textFieldASPath" layoutX="43.0" layoutY="71.0" onDragDropped="#onDragDroppedAsPath" onDragOver="#onDragOver" prefHeight="23.0" prefWidth="477.0" promptText="请拖放或指定 AndroidStudio 安装目录" />
+		<Label layoutX="42.0" layoutY="52.0" text="Android Studio 目录" />
+		<TextField fx:id="textFieldASPath" layoutX="43.0" layoutY="71.0" onDragDropped="#onDragDroppedAsPath" onDragOver="#onDragOver" prefHeight="23.0" prefWidth="477.0" promptText="请拖放或指定 Android Studio 安装目录" />
 		<Button layoutX="42.0" layoutY="210.0" mnemonicParsing="false" onMouseClicked="#onClickBackup" text="备份" />
 		<Button layoutX="98.0" layoutY="210.0" mnemonicParsing="false" onMouseClicked="#onClickRestore" text="恢复" />
 		<Button layoutX="42.0" layoutY="350.0" mnemonicParsing="false" onMouseClicked="#onClickTranslate" text="汉化" />
-		<ChoiceBox fx:id="choiceBoxBackupPath" layoutX="246.0" layoutY="111.0" />
+		<ChoiceBox fx:id="choiceBoxBackupPath" layoutX="254.0" layoutY="111.0" />
 		<Label layoutX="42.0" layoutY="115.0" text="备份目录（用于不想使用汉化时恢复）" />
 		<TextField fx:id="textFieldBackupPath" layoutX="43.0" layoutY="136.0" onDragDropped="#onDragDroppedBackupPath" onDragOver="#onDragOver" prefHeight="23.0" prefWidth="477.0" promptText="请拖放或选择或指定备份目录" />
 		<Button layoutX="526.0" layoutY="71.0" mnemonicParsing="false" onMouseClicked="#onClickChooseASPath" text="选择" />
@@ -29,7 +29,7 @@
         <menus>
           <Menu mnemonicParsing="false" text="目录">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#menuPathAs" text="打开 AndroidStudio 目录" />
+              <MenuItem mnemonicParsing="false" onAction="#menuPathAs" text="打开 Android Studio 目录" />
                   <MenuItem mnemonicParsing="false" onAction="#menuPathBackup" text="打开备份目录" />
                   <MenuItem mnemonicParsing="false" onAction="#menuPathTranslation" text="打开汉化文件目录" />
             </items>
@@ -38,6 +38,7 @@
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#menuHelp" text="帮助" />
                   <MenuItem mnemonicParsing="false" onAction="#menuFeedback" text="反馈" />
+                  <MenuItem mnemonicParsing="false" onAction="#menuAbout" text="关于" />
                </items>
           </Menu>
         </menus>

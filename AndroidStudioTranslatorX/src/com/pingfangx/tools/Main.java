@@ -18,6 +18,7 @@ public class Main extends Application {
             MainSceneController controller = fxmlLoader.getController();
             controller.setStage(primaryStage);
             primaryStage.show();
+            primaryStage.setTitle("Android Studio 汉化工具  by 平方X");
         } catch (Exception e) {
             e.printStackTrace();
         }

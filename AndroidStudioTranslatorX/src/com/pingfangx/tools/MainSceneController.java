@@ -4,6 +4,7 @@ import java.awt.Desktop;
 import java.awt.Desktop.Action;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -99,12 +100,15 @@ public class MainSceneController implements Initializable {
         // 初始化配置
         initTextField(textFieldASPath, SoftwareConfig.ANDROID_STUDIO_PATH, null);
         initTextField(textFieldBackupPath, SoftwareConfig.BACKUP_PATH, null);
-        initTextField(textFieldTranslationPath, SoftwareConfig.TRANSLATION_PATH, getCurrentDir());
+        initTextField(textFieldTranslationPath, SoftwareConfig.TRANSLATION_PATH, scanTranslationPath());
 
         initChoiceBox(choiceBoxBackupPath, SoftwareConfig.BACKUP_PATH_INDEX);
-        initChoiceBox(choiceBoxBackupType, SoftwareConfig.BACKUP_TYPE_INDEX);
+        // 备份类型，默认选中备份 jar 包
+        initChoiceBox(choiceBoxBackupType, SoftwareConfig.BACKUP_TYPE_INDEX, 1);
         initChoiceBox(choiceBoxTranslationType, SoftwareConfig.TRANSLATION_TYPE_INDEX);
 
+        mLogger.i("汉化前，请关闭 Android Studio");
+        mLogger.i("请先备份");
         String asPath = textFieldASPath.getText();
         if (asPath == null || asPath.isEmpty()) {
             scanAsPath();
@@ -112,9 +116,40 @@ public class MainSceneController implements Initializable {
     }
 
     /**
+     * 扫描翻译文件路径
+     * 
+     * @return
+     */
+    private String scanTranslationPath() {
+        String path = getCurrentDir();
+        if (path != null) {
+            File[] files = new File(path).listFiles(new FileFilter() {
+
+                @Override
+                public boolean accept(File pathname) {
+                    return pathname.isDirectory();
+                }
+            });
+            if (files.length > 0) {
+                path = files[files.length - 1].getAbsolutePath();
+            }
+        }
+        return path;
+    }
+
+    /**
      * 扫描 as安装目录
      */
     private void scanAsPath() {
+        String osName = System.getProperty("os.name");
+        if (osName.startsWith("Mac")) {
+            String asHomePath = "/Applications/Android Studio.app/Contents";
+            if (mTranslationFileTools.validateAsPath(asHomePath) == null) {
+                setAndSaveAsPath(asHomePath);
+                mLogger.i("自动扫描出 Android Studio 安装路径" + asHomePath);
+            }
+            return;
+        }
         String userHomePath = System.getProperty("user.home");
         if (userHomePath == null || userHomePath.isEmpty()) {
             return;
@@ -153,7 +188,7 @@ public class MainSceneController implements Initializable {
             if (asHomeDir.exists()) {
                 if (mTranslationFileTools.validateAsPath(asHomePath) == null) {
                     setAndSaveAsPath(asHomePath);
-                    mLogger.i("自动扫描出 AndroidStudio 安装路径" + asHomePath);
+                    mLogger.i("自动扫描出 Android Studio 安装路径" + asHomePath);
                 }
             }
 
@@ -187,6 +222,17 @@ public class MainSceneController implements Initializable {
     }
 
     private void initChoiceBox(ChoiceBox<String> choiceBox, String name) {
+        initChoiceBox(choiceBox, name, 0);
+    }
+
+    /**
+     * 初始化
+     * 
+     * @param choiceBox
+     * @param name 配置名
+     * @param defaut 默认选中
+     */
+    private void initChoiceBox(ChoiceBox<String> choiceBox, String name, int defaut) {
         String indexString = mConfig.get(name);
         int index = -1;
         if (indexString != null && !indexString.isEmpty()) {
@@ -197,7 +243,10 @@ public class MainSceneController implements Initializable {
             }
         }
         if (index < 0) {
-            index = 0;
+            if (defaut < 0) {
+                defaut = 0;
+            }
+            index = defaut;
         }
         choiceBox.getSelectionModel().select(index);
     }
@@ -396,7 +445,26 @@ public class MainSceneController implements Initializable {
             return;
         }
 
-        message = null;
+        if (!mTranslationFileTools.checkBackupFile(textFieldBackupPath.getText())) {
+            message = "没有检查到备份的 jar 文件，强烈建议备份，用于恢复和升级";
+            Alert alert = new Alert(AlertType.WARNING, message, new ButtonType("去备份", ButtonData.YES),
+                    new ButtonType("不管了，直接翻译", ButtonData.NO), new ButtonType("取消", ButtonData.CANCEL_CLOSE));
+            alert.setHeaderText(null);
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result != null) {
+                if (result.get().getButtonData() == ButtonData.YES) {
+                    onClickBackup(null);
+                } else if (result.get().getButtonData() == ButtonData.NO) {
+                    doTranslate();
+                }
+            }
+            return;
+        }
+        doTranslate();
+    }
+
+    private void doTranslate() {
+        String message = null;
         int selectedIndex = choiceBoxTranslationType.getSelectionModel().getSelectedIndex();
         if (selectedIndex == BACKUP_TYPE_FILES_IN_JARS) {
             message = mTranslationFileTools.zipFileList(textFieldTranslationPath.getText(), textFieldASPath.getText(),
@@ -489,12 +557,17 @@ public class MainSceneController implements Initializable {
 
     @FXML
     public void menuHelp(ActionEvent event) {
-        openUrl("https://github.com/pingfangx/TranslatorX");
+        openUrl("http://www.pingfangx.com/xx/translation/android_studio/help");
     }
 
     @FXML
     public void menuFeedback(ActionEvent event) {
-        openUrl("https://github.com/pingfangx/TranslatorX");
+        openUrl("http://www.pingfangx.com/xx/translation/android_studio/feedback");
+    }
+
+    @FXML
+    public void menuAbout(ActionEvent event) {
+        openUrl("http://www.pingfangx.com/xx/translation/android_studio/about");
     }
 
     /**

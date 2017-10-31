@@ -76,6 +76,29 @@ public class TranslationFileTools {
         return null;
     }
 
+    /**
+     * 检查是否已备份
+     * 用于汉化前检查
+     * 
+     * @return
+     */
+    public boolean checkBackupFile(String path) {
+        if (path == null) {
+            return false;
+        }
+
+        if (!path.endsWith(File.separator)) {
+            path += File.separator;
+        }
+        for (String jarFile : mJarFileList) {
+            File file = new File(path + jarFile);
+            if (!file.exists()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public String copyJars(String sourceRoot, String destinationRoot, ILogger logger) {
         Thread t = new Thread(new CopyTask(sourceRoot, destinationRoot, null, logger));
         t.setDaemon(true);
