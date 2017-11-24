@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/AndroidStudioTranslatorX/AndroidStudioTranslatorX.iml" filepath="$PROJECT_DIR$/AndroidStudioTranslatorX/AndroidStudioTranslatorX.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ClassFileEditorX/ClassFileEditorX.iml" filepath="$PROJECT_DIR$/ClassFileEditorX/ClassFileEditorX.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ConfigX/ConfigX.iml" filepath="$PROJECT_DIR$/ConfigX/ConfigX.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LoggerX/LoggerX.iml" filepath="$PROJECT_DIR$/LoggerX/LoggerX.iml" />
+      <module fileurl="file://$PROJECT_DIR$/QQMessagesDecoder/QQMessagesDecoder.iml" filepath="$PROJECT_DIR$/QQMessagesDecoder/QQMessagesDecoder.iml" />
+      <module fileurl="file://$PROJECT_DIR$/libs/libs.iml" filepath="$PROJECT_DIR$/libs/libs.iml" />
+    </modules>
+  </component>
+</project>
