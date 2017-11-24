@@ -1,0 +1,15 @@
+<component name="ArtifactManager">
+  <artifact name="AndroidStudioTranslatorX:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/AndroidStudioTranslatorX_jar</output-path>
+    <root id="root">
+      <element id="archive" name="AndroidStudioTranslatorX.jar">
+        <element id="module-output" name="AndroidStudioTranslatorX" />
+        <element id="module-output" name="ConfigX" />
+        <element id="module-output" name="LoggerX" />
+      </element>
+      <element id="directory" name="AndroidStudioTranslatorX_lib">
+        <element id="library" level="module" name="org.dtools.javaini-v1.1.00.jar" module-name="ConfigX" />
+      </element>
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Class-Path: AndroidStudioTranslatorX_lib/org.dtools.javaini-v1.1.00.ja
+ r
+Main-Class: com.pingfangx.tools.AndroidStudioTranslatorX
+

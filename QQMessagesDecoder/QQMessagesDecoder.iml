@@ -25,12 +25,14 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="args4j-2.33.jar">
+      <library>
         <CLASSES>
-          <root url="file:///libs/libs/args4j-2.33.jar" />
+          <root url="jar://$MODULE_DIR$/../libs/lib/args4j-2.33.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../libs/lib/args4j-2.33.jar!/OSGI-OPT/src" />
+        </SOURCES>
       </library>
     </orderEntry>
   </component>
