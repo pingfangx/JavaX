@@ -1,24 +1,15 @@
 package com.pingfangx.tools;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import com.pingfangx.tools.base.ILogger;
+import javafx.concurrent.Task;
+
+import java.io.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import com.pingfangx.tools.base.ILogger;
-
-import javafx.concurrent.Task;
 
 public class TranslationFileTools {
     private static TranslationFileTools sInstance;
@@ -37,11 +28,7 @@ public class TranslationFileTools {
             mJarFileList.add("plugins/android/lib/resources_en.jar");
         }
         // 如果以 ; 开头，将其忽略
-        for (Iterator<String> iterator = mJarFileList.iterator(); iterator.hasNext();) {
-            if (iterator.next().startsWith(";")) {
-                iterator.remove();
-            }
-        }
+        mJarFileList.removeIf(s -> s.startsWith(";"));
         for (int i = 0; i < mJarFileList.size(); i++) {
             mJarFileList.set(i, mJarFileList.get(i).replace("/", File.separator).replace("\\", File.separator));
         }
@@ -55,9 +42,8 @@ public class TranslationFileTools {
     }
 
     /**
-     * 
      * 校验是否是正确的as路径
-     * 
+     *
      * @return 如果正确返回null，如果不正确返回错误信息
      */
     public String validateAsPath(String path) {
@@ -79,8 +65,6 @@ public class TranslationFileTools {
     /**
      * 检查是否已备份
      * 用于汉化前检查
-     * 
-     * @return
      */
     public boolean checkBackupFile(String path) {
         if (path == null) {
@@ -109,12 +93,12 @@ public class TranslationFileTools {
     /**
      * 将 sourceRoot 中的 jar 文件，根据 destinationRoot 中的翻译文件列表，解压到 translationRoot
      * 中对应的文件夹中
-     * 
+     *
      * @param sourceRoot 源文件夹，拼接上 jar文件得到其地址
      * @param destinationRoot 目标文件，拼接上 jar 文件（去掉 .jar），再拼上 翻译文件的目录及文件，得到要解压的文件名
      * @param translationRoot 翻译文件夹，
-     * @return
      */
+    @SuppressWarnings("unused")
     public String unzipFileList(String sourceRoot, String destinationRoot, String translationRoot, ILogger logger) {
         Thread t = new Thread(new UnzipFileListTask(sourceRoot, destinationRoot, translationRoot, logger));
         t.setDaemon(true);
@@ -125,10 +109,6 @@ public class TranslationFileTools {
     /**
      * 将 sourceRoot 中的文件，压缩到 destinationRoot 中对应的 jar中
      * 如果translationRoot不为null，会删除 translationRoot中的文件
-     * 
-     * @param sourceRoot
-     * @param destinationRoot
-     * @return
      */
     public String zipFileList(String sourceRoot, String destinationRoot, String translationRoot, ILogger logger) {
         Thread t = new Thread(new ZipFileListTask(sourceRoot, destinationRoot, translationRoot, logger));
@@ -143,12 +123,13 @@ public class TranslationFileTools {
     public static void copyFile(File sourceFile, File destinationFile) throws IOException {
         File parent = destinationFile.getParentFile();
         if (!parent.exists()) {
+            //noinspection ResultOfMethodCallIgnored
             parent.mkdirs();
         }
         FileInputStream ins = new FileInputStream(sourceFile);
         FileOutputStream out = new FileOutputStream(destinationFile);
         byte[] buf = new byte[1024];
-        int len = 0;
+        int len;
         while ((len = ins.read(buf)) != -1) {
             out.write(buf, 0, len);
         }
@@ -161,10 +142,11 @@ public class TranslationFileTools {
      * https://stackoverflow.com/questions/ 添加文件到已存在的 压缩包中
      */
     public static void addFilesToExistingZip(File zipFile, List<String> files, List<String> ignoreFiles,
-            String fileParent) throws IOException {
+                                             String fileParent) throws IOException {
         // get a temp file
         File tempFile = File.createTempFile(zipFile.getName(), null);
         // delete it, otherwise you cannot rename your existing zip to it.
+        //noinspection ResultOfMethodCallIgnored
         tempFile.delete();
 
         boolean renameOk = zipFile.renameTo(tempFile);
@@ -209,6 +191,7 @@ public class TranslationFileTools {
         }
         // Complete the ZIP file
         out.close();
+        //noinspection ResultOfMethodCallIgnored
         tempFile.delete();
     }
 
@@ -217,7 +200,7 @@ public class TranslationFileTools {
      * 从压缩包中解压指定的文件到指定的目录，如果不存在则不解压
      */
     public static void unzipFiles(File sourceFile, String destinationDir, List<String> fileList)
-            throws ZipException, IOException {
+            throws IOException {
         ZipFile zipFile = new ZipFile(sourceFile);
         for (String file : fileList) {
             ZipEntry entry = zipFile.getEntry(file);
@@ -225,6 +208,7 @@ public class TranslationFileTools {
                 File destFile = new File(destinationDir + file);
                 File parent = destFile.getParentFile();
                 if (!parent.exists()) {
+                    //noinspection ResultOfMethodCallIgnored
                     parent.mkdirs();
                 }
                 InputStream is = zipFile.getInputStream(entry);
@@ -242,7 +226,6 @@ public class TranslationFileTools {
     }
 
     /**
-     * 
      * 列出 jar 的所有翻译文件，结果相对于 translationDir，同时将"\\"替换为"/"，因为即使是 windows中 zip
      * 中的entry也是用的/
      */
@@ -281,11 +264,14 @@ public class TranslationFileTools {
     private static List<File> listFile(File dir) {
         List<File> fileList = new ArrayList<>();
         if (dir.isDirectory()) {
-            for (File file : dir.listFiles()) {
-                if (file.isDirectory()) {
-                    fileList.addAll(listFile(file));
-                } else {
-                    fileList.add(file);
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        fileList.addAll(listFile(file));
+                    } else {
+                        fileList.add(file);
+                    }
                 }
             }
         } else {
@@ -308,7 +294,7 @@ public class TranslationFileTools {
         try {
             inputStream = new FileInputStream(file);
             bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"));
-            String line = null;
+            String line;
             while ((line = bufferedReader.readLine()) != null) {
                 lines.add(line);
             }
@@ -455,9 +441,6 @@ public class TranslationFileTools {
                 try {
                     updateMessage(String.format("将 %s 解压到 %s", sourceFile, destDir));
                     unzipFiles(sourceFile, destDir, listTranslationFileOfJar(translationDir));
-                } catch (ZipException e) {
-                    e.printStackTrace();
-                    updateMessage(e.getMessage());
                 } catch (IOException e) {
                     e.printStackTrace();
                     updateMessage(e.getMessage());

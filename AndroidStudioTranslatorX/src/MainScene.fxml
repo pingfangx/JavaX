@@ -1,30 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
-
 <AnchorPane prefHeight="575.0" prefWidth="627.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pingfangx.tools.MainSceneController">
 	<children>
 		<Label layoutX="42.0" layoutY="52.0" text="Android Studio 目录" />
 		<TextField fx:id="textFieldASPath" layoutX="43.0" layoutY="71.0" onDragDropped="#onDragDroppedAsPath" onDragOver="#onDragOver" prefHeight="23.0" prefWidth="477.0" promptText="请拖放或指定 Android Studio 安装目录" />
-		<Button layoutX="42.0" layoutY="210.0" mnemonicParsing="false" onMouseClicked="#onClickBackup" text="备份" />
-		<Button layoutX="98.0" layoutY="210.0" mnemonicParsing="false" onMouseClicked="#onClickRestore" text="恢复" />
-		<Button layoutX="42.0" layoutY="350.0" mnemonicParsing="false" onMouseClicked="#onClickTranslate" text="汉化" />
+        <Button layoutX="47.0" layoutY="251.0" mnemonicParsing="false" onMouseClicked="#onClickBackup" text="备份"/>
+        <Button layoutX="128.0" layoutY="251.0" mnemonicParsing="false" onMouseClicked="#onClickRestore" text="恢复"/>
+        <Button layoutX="214.0" layoutY="251.0" mnemonicParsing="false" onMouseClicked="#onClickTranslate" text="汉化"/>
 		<ChoiceBox fx:id="choiceBoxBackupPath" layoutX="254.0" layoutY="111.0" />
 		<Label layoutX="42.0" layoutY="115.0" text="备份目录（用于不想使用汉化时恢复）" />
 		<TextField fx:id="textFieldBackupPath" layoutX="43.0" layoutY="136.0" onDragDropped="#onDragDroppedBackupPath" onDragOver="#onDragOver" prefHeight="23.0" prefWidth="477.0" promptText="请拖放或选择或指定备份目录" />
 		<Button layoutX="526.0" layoutY="71.0" mnemonicParsing="false" onMouseClicked="#onClickChooseASPath" text="选择" />
 		<Button layoutX="526.0" layoutY="136.0" mnemonicParsing="false" onMouseClicked="#onClickChooseBackupPath" text="选择" />
-		<TextArea fx:id="textAreaOutput" layoutX="44.0" layoutY="379.0" prefHeight="149.0" prefWidth="524.0" promptText="输出" wrapText="true" />
-		<ChoiceBox fx:id="choiceBoxBackupType" layoutX="99.0" layoutY="179.0" />
-		<Label layoutX="42.0" layoutY="183.0" text="备份类型" />
-		<Button layoutX="527.0" layoutY="284.0" mnemonicParsing="false" onMouseClicked="#onClickChooseTranslationPath" text="选择" />
-		<TextField fx:id="textFieldTranslationPath" layoutX="44.0" layoutY="284.0" onDragDropped="#onDragDroppedTranslationPath" onDragOver="#onDragOver" prefHeight="23.0" prefWidth="477.0" promptText="请拖放或指定汉化文件目录" />
-		<Label layoutX="43.0" layoutY="267.0" text="汉化文件目录" />
-      <Label layoutX="44.0" layoutY="327.0" text="汉化类型" />
-      <ChoiceBox fx:id="choiceBoxTranslationType" layoutX="105.0" layoutY="323.0" />
+        <TextArea fx:id="textAreaOutput" layoutX="43.0" layoutY="295.0" prefHeight="257.0" prefWidth="524.0"
+                  promptText="输出" wrapText="true"/>
+        <ChoiceBox fx:id="choiceBoxBackupType" layoutX="99.0" layoutY="179.0" visible="false"/>
+        <Label layoutX="42.0" layoutY="183.0" text="备份类型" visible="false"/>
+        <Button layoutX="526.0" layoutY="200.0" mnemonicParsing="false" onMouseClicked="#onClickChooseTranslationPath"
+                text="选择"/>
+        <TextField fx:id="textFieldTranslationPath" layoutX="43.0" layoutY="200.0"
+                   onDragDropped="#onDragDroppedTranslationPath" onDragOver="#onDragOver" prefHeight="23.0"
+                   prefWidth="477.0" promptText="请拖放或指定汉化文件目录"/>
+        <Label layoutX="42.0" layoutY="183.0" text="汉化文件目录"/>
+        <Label layoutX="44.0" layoutY="327.0" text="汉化类型" visible="false"/>
+        <ChoiceBox fx:id="choiceBoxTranslationType" layoutX="105.0" layoutY="323.0" visible="false"/>
       <MenuBar layoutY="1.0" prefHeight="25.0" prefWidth="627.0">
         <menus>
           <Menu mnemonicParsing="false" text="目录">
