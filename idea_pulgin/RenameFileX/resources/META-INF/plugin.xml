@@ -1,0 +1,26 @@
+<idea-plugin>
+    <id>com.pingfangx.plugin.RenameFileX</id>
+    <name>RenameFileX</name>
+    <version>1.0</version>
+    <vendor email="pingfangx@pingfangx.com" url="http://www.pingfangx.com">平方X</vendor>
+
+    <description><![CDATA[
+    选择一个或多个文件，复制到项目中并重命名为指定文件
+    ]]></description>
+
+    <change-notes><![CDATA[
+      1.0 版本，基本满足了自己的需求
+    ]]>
+    </change-notes>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="173.0"/>
+
+    <actions>
+        <action id="com.pingfangx.plugin.action.RenameFileXAction"
+                class="com.pingfangx.plugin.action.RenameFileXAction">
+            <add-to-group group-id="EditMenu" anchor="after" relative-to-action="CutCopyPasteGroup"/>
+        </action>
+    </actions>
+
+</idea-plugin>
