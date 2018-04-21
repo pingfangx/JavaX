@@ -1,29 +1,16 @@
 <idea-plugin>
-    <id>com.pingfangx.RenameFileX</id>
-    <name>Plugin display name here</name>
-    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+    <id>com.pingfangx.plugin.RenameFileX</id>
+    <name>RenameFileX</name>
+    <vendor email="pingfangx@pingfangx.com" url="http://www.pingfangx.com">平方X</vendor>
 
     <description><![CDATA[
-    Enter short description for your plugin here.<br>
-    <em>most HTML tags may be used</em>
+    选择一个或多个文件，复制到项目中并重命名为指定文件
     ]]></description>
 
-    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-         on how to target different products -->
-    <!-- uncomment to enable plugin in all products
-    <depends>com.intellij.modules.lang</depends>
-    -->
-
-    <extensions defaultExtensionNs="com.intellij">
-        <!-- Add your extensions here -->
-    </extensions>
-
     <actions>
-        <!-- Add your actions here -->
         <action id="com.pingfangx.plugin.action.RenameFileXAction"
                 class="com.pingfangx.plugin.action.RenameFileXAction">
             <add-to-group group-id="EditMenu" anchor="after" relative-to-action="CutCopyPasteGroup"/>
-            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt X" second-keystroke="C"/>
         </action>
     </actions>
 </idea-plugin>
