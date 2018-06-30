@@ -1,4 +1,4 @@
-package com.pingfangx.plugin;
+package com.pingfangx.plugin.ui.components;
 
 import com.intellij.ui.components.JBList;
 
@@ -37,7 +37,10 @@ public class FileList extends JBList<String> {
                         if (transferData instanceof List) {
                             for (Object next : ((List) transferData)) {
                                 if (next instanceof File) {
-                                    add(((File) next).getAbsolutePath());
+                                    File file = (File) next;
+                                    if (file.isFile()) {
+                                        add(file.getAbsolutePath());
+                                    }
                                 }
                             }
                         }
