@@ -1,15 +1,25 @@
 <idea-plugin>
     <id>com.pingfangx.plugin.RenameFileX</id>
     <name>RenameFileX</name>
-    <version>1.0</version>
-    <vendor email="pingfangx@pingfangx.com" url="http://www.pingfangx.com">平方X</vendor>
+    <version>1.1</version>
+    <vendor email="pingfangx@gmail.com" url="https://www.pingfangx.com">pingfangx</vendor>
 
     <description><![CDATA[
-    选择一个或多个文件，复制到项目中并重命名为指定文件
+    Select one or more files,rename and copy them into your project easily.<br>
+    The rename action will not affect the original files.<br>
+    <br>
+    选择一个或多个文件，重命名并复制到项目中。<br>
+    重命名操作不会影响原始文件。
     ]]></description>
 
     <change-notes><![CDATA[
-      1.0 版本，基本满足了自己的需求
+    v1.1 Add shortcut for actions.<br>
+        Synchronize project after the action is finished successfully.<br>
+    v1.0 Achieved simply.<br>
+    <br>
+    v1.1 添加了快捷键<br>
+        操作成功后刷新项目<br>
+    v1.0 基本满足了自己的需求
     ]]>
     </change-notes>
 
