@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.pingfangx.plugin.RenameFileX</id>
     <name>RenameFileX</name>
-    <version>1.1</version>
+    <version>1.1.1</version>
     <vendor email="pingfangx@gmail.com" url="https://www.pingfangx.com">pingfangx</vendor>
 
     <description><![CDATA[
@@ -13,6 +13,7 @@
     ]]></description>
 
     <change-notes><![CDATA[
+    v1.1.1 Enable plugin in all products.<br>
     v1.1 Add shortcut for actions.<br>
         Synchronize project after the action is finished successfully.<br>
     v1.0 Achieved simply.<br>
@@ -25,7 +26,8 @@
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
     <idea-version since-build="173.0"/>
-
+    <!--enable plugin in all products-->
+    <depends>com.intellij.modules.lang</depends>
     <actions>
         <action id="com.pingfangx.plugin.action.RenameFileXAction"
                 class="com.pingfangx.plugin.action.RenameFileXAction">
