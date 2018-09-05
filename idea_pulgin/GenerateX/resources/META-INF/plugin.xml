@@ -1,0 +1,41 @@
+<idea-plugin>
+    <id>com.pingfangx.plugin.generatex</id>
+    <name>GenerateX</name>
+    <version>1.0</version>
+    <vendor email="pingfangx@gmail.com" url="http://www.pingfangx.com">pingfangx</vendor>
+
+    <description><![CDATA[
+      自用的一些工具，用来方便生成代码
+    ]]></description>
+
+    <change-notes><![CDATA[
+      v1.0 添加 findViewById ，基于 <a href="https://github.com/wangzailfm/GenerateFindViewById">GenerateFindViewById</a> ，感谢。
+    ]]>
+    </change-notes>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="173.0"/>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!--support IntelliJ IDEA, Android Studio-->
+    <depends>com.intellij.modules.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+        <action class="com.pingfangx.plugin.generatex.actions.FindViewByIdAction"
+                id="com.pingfangx.plugin.generatex.actions.FindViewByIdAction"
+                text="FindViewByIdX"
+                description="generate findViewById">
+            <add-to-group group-id="CodeMenu" anchor="first"/>
+            <add-to-group group-id="GenerateGroup" anchor="first"/>
+            <!--不要问快捷键为什么这么长，不想与别的快捷键冲突-->
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift X" second-keystroke="I"/>
+        </action>
+    </actions>
+
+</idea-plugin>
