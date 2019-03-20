@@ -2,7 +2,6 @@ package com.pingfangx.plugin.generatex.entity
 
 import com.intellij.psi.xml.XmlTag
 import firstToUpperCase
-import org.apache.commons.lang.StringUtils
 import java.util.regex.Pattern
 
 /**
@@ -32,7 +31,7 @@ class Element
     // aaBbCc mAaBbCc
     var fieldName: String = ""
         get() {
-            if (StringUtils.isEmpty(field)) {
+            if (field.isEmpty()) {
                 var fieldName: String = id!!
                 val names = id!!.split("_".toRegex()).dropLastWhile(String::isEmpty).toTypedArray()
                 when (fieldNameType) {

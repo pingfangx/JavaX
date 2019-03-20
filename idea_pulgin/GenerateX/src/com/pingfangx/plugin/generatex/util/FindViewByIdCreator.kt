@@ -54,7 +54,17 @@ class FindViewByIdCreator(params: GenerateParams) : WriteCommandAction.Simple<An
         //字段
         generateViewFields()
         //initView 方法
-        generateInitViewMethod(mInitMethodName, "view")
+        val methodName: String = if (mInitMethodName.contains("(")) {
+            mInitMethodName.substringBefore("(")
+        } else {
+            mInitMethodName
+        }
+        val paramsName: String = if (mInitMethodName.contains("(")) {
+            mInitMethodName.substringAfter("(").substringBefore(")")
+        } else {
+            "view"
+        }
+        generateInitViewMethod(methodName, paramsName)
     }
 
     /**

@@ -166,7 +166,7 @@ open class GenerateDialog(
 //        mPanelInflater.add(mLayoutInflater)
 //        mPanelInflater.add(mLayoutInflaterField)
         mPanelInflater.add(JLabel(Constant.Dialog.FIELD_INIT_METHOD))
-        mTextFieldInitMethod = JTextField("initViews", 10)
+        mTextFieldInitMethod = JTextField("initViews(view)", 20)
         mPanelInflater.add(mTextFieldInitMethod)
         // 添加到JFrame
         contentPane.add(mPanelInflater, 2)

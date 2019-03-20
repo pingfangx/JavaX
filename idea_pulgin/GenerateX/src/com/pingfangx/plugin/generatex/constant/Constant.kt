@@ -13,12 +13,12 @@ object Constant {
     object Action {
         const val SELECTED_TEXT_ACTIVITY_PREFIX = "activity_"
         const val SELECTED_TEXT_SUFFIX = ".xml"
-        const val SELECTED_MESSAGE = "布局内容：（不需要输入R.layout.）"
-        const val SELECTED_TITLE = "未选中布局内容，请输入layout文件名"
-        const val SELECTED_ERROR_NO_NAME = "未输入layout文件名"
+        const val SELECTED_TITLE = "未选中 layout 文件名，请输入"
+        const val SELECTED_MESSAGE = "$SELECTED_TITLE (不需要输入 R.layout.)"
+        const val SELECTED_ERROR_NO_NAME = "未输入 layout 文件名"
         const val SELECTED_ERROR_NO_SELECTED = "未找到选中的布局文件"
-        const val SELECTED_ERROR_NO_ID = "未找到任何Id"
-        const val SELECTED_ERROR_NO_POINT = "光标未在Class内"
+        const val SELECTED_ERROR_NO_ID = "未找到任何 id"
+        const val SELECTED_ERROR_NO_POINT = "光标未在 class 内"
         const val SELECTED_SUCCESS = "生成成功"
     }
 
